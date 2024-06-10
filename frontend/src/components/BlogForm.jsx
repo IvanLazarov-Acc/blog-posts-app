@@ -1,12 +1,14 @@
 /* eslint-disable react/prop-types */
 import { useState } from "react";
 import "../index.css";
+import { useAuthContext } from "../hooks/useAuthContext";
 
 const BlogForm = ({ refetch }) => {
 
     const [formData, setFormData] = useState({ title: "", text: "", author: "" });
     const [error, setError] = useState(null);
     const [emptyFields, setEmptyFields] = useState([]);
+    const { user } = useAuthContext();
 
     const handleChange = (event) => {
         const { name, value } = event.target;
@@ -16,13 +18,19 @@ const BlogForm = ({ refetch }) => {
     const handleSubmit = async (event) => {
         event.preventDefault();
 
+        if (!user) {
+            setError("You must be logged in!");
+            return;
+        }
+
         const newBlog = { title: formData.title, text: formData.text, author: formData.author };
 
         const response = await fetch(`http://localhost:3000/api/blogs`, {
             method: 'POST',
             body: JSON.stringify(newBlog),
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                "Authorization": `Bearer ${user?.token}`
             },
         })
 

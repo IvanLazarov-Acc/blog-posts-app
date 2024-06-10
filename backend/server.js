@@ -3,10 +3,11 @@ const cors = require("cors");
 const express = require("express");
 const mongoose = require("mongoose");
 const blogRoutes = require("./routes/blogRoutes");
+const userRoutes = require("./routes/user");
 
 const app = express();
 
-app.use(cors({origin:"*"}));
+app.use(cors({ origin: "*" }));
 app.use(express.json());
 app.use((req, res, next) => {
     console.log(req.path, req.method);
@@ -14,6 +15,7 @@ app.use((req, res, next) => {
 });
 
 app.use("/api/blogs", blogRoutes);
+app.use("/api/user", userRoutes);
 
 mongoose.connect(process.env.MONGO_URI)
     .then(() => {

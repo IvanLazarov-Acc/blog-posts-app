@@ -1,12 +1,14 @@
 import { Link, useParams, useNavigate } from "react-router-dom";
 import useDataFetch from "../helper/useFetch";
 import { useEffect, useState } from "react";
+import { useAuthContext } from "../hooks/useAuthContext";
 
 
 const BlogPage = () => {
     const navigate = useNavigate();
+    const { user } = useAuthContext();
     const { id } = useParams();
-    const { data, error: dataError, isLoading } = useDataFetch(`http://localhost:3000/api/blogs/${id}`);
+    const { data, error: dataError, isLoading } = useDataFetch(`http://localhost:3000/api/blogs/${id}`, user);
 
     const [blog, setBlog] = useState({});
     const [error, setError] = useState(null);
@@ -20,8 +22,16 @@ const BlogPage = () => {
 
     const handleClick = async () => {
 
+        if (!user) {
+            setError("You must be logged in!");
+            return;
+        }
+
         const response = await fetch(`http://localhost:3000/api/blogs/${id}`, {
             method: 'DELETE',
+            headers: {
+                "Authorization": `Bearer ${user?.token}`
+            }
         });
 
         const json = await response.json();

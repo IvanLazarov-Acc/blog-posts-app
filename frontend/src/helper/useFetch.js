@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const useDataFetch = (url) => {
+const useDataFetch = (url, user) => {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
   const [isLoading, setLoading] = useState(false);
@@ -8,11 +8,15 @@ const useDataFetch = (url) => {
   const fetchData = async () => {
     setLoading(true);
     try {
-        const response = await fetch(url);
-        const json = await response.json();
-        if (response.ok) {
-            setData(json);
+      const response = await fetch(url, {
+        headers: {
+          "Authorization": `Bearer ${user?.token}`
         }
+      });
+      const json = await response.json();
+      if (response.ok) {
+        setData(json);
+      }
     } catch (error) {
       setError(error);
     } finally {
@@ -21,8 +25,10 @@ const useDataFetch = (url) => {
   };
 
   useEffect(() => {
-    fetchData();
-  }, [url]);
+    if (user) {
+      fetchData();
+    }
+  }, [url, user]);
 
   const refetch = () => {
     fetchData();

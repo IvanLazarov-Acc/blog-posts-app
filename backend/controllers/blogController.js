@@ -19,6 +19,19 @@ const getBlogs = async (req, res) => {
     res.status(200).json({ totalPages: Math.ceil(totalBlogs / PAGE_SIZE), blogs });
 }
 
+const getMyBlogs = async (req, res) => {
+    const user_id = req.user._id;
+    const PAGE_SIZE = 8;
+    const page = parseInt(req.query.page || "0");
+    const search = req.query.search || "";
+    const searchQuery = { title: { $regex: search, $options: "i" } };
+    const totalBlogs =
+        search.length > 0 ? await Blog.countDocuments(searchQuery) :
+            await Blog.countDocuments();
+    const blogs = await Blog.find({ title: { $regex: search, $options: "i" }, user_id: user_id }).sort({ createdAt: -1 }).limit(PAGE_SIZE).skip(page * PAGE_SIZE);
+    res.status(200).json({ totalPages: Math.ceil(totalBlogs / PAGE_SIZE), blogs });
+}
+
 const getBlog = async (req, res) => {
     const { id } = req.params;
 
@@ -51,7 +64,8 @@ const createBlog = async (req, res) => {
     }
 
     try {
-        const blog = await Blog.create({ title, text, author });
+        const user_id = req?.user?._id;
+        const blog = await Blog.create({ title, text, author, user_id });
         res.status(200).json(blog);
     } catch (error) {
         res.status(400).json({ error: error.message });
@@ -91,4 +105,4 @@ const updateBlog = async (req, res) => {
 }
 
 
-module.exports = { getBlogs, getBlog, createBlog, deleteBlog, updateBlog }
+module.exports = { getBlogs, getBlog, createBlog, deleteBlog, updateBlog, getMyBlogs }

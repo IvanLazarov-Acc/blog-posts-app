@@ -5,7 +5,7 @@ import useDataFetch from "../helper/useFetch";
 import { SearchBar } from "../components/SearchBar";
 import { useAuthContext } from "../hooks/useAuthContext";
 
-const Home = () => {
+const MyBlogs = () => {
 
     const [blogs, setBlogs] = useState([]);
     const [pageNumber, setPageNumber] = useState(0);
@@ -14,7 +14,7 @@ const Home = () => {
 
     const { user } = useAuthContext();
 
-    const { data, error, isLoading, refetch } = useDataFetch(`http://localhost:3000/api/blogs?page=${pageNumber}&search=${search}`, user);
+    const { data, error, isLoading, refetch } = useDataFetch(`http://localhost:3000/api/blogs/my-blogs?page=${pageNumber}&search=${search}`, user);
 
     const pages = new Array(totalPages).fill(null).map((v, i) => i);
 
@@ -61,4 +61,4 @@ const Home = () => {
     )
 }
 
-export default Home;
+export default MyBlogs;

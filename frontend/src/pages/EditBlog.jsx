@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import useDataFetch from "../helper/useFetch";
+import { useAuthContext } from "../hooks/useAuthContext";
 
 
 const EditBlog = () => {
@@ -9,8 +10,10 @@ const EditBlog = () => {
     const [emptyFields, setEmptyFields] = useState([]);
     const [blog, setBlog] = useState({});
 
+    const { user } = useAuthContext();
+
     const { id } = useParams();
-    const { data, refetch } = useDataFetch(`http://localhost:3000/api/blogs/${id}`);
+    const { data, refetch } = useDataFetch(`http://localhost:3000/api/blogs/${id}`, user);
 
     useEffect(() => {
         if (data) {
@@ -27,13 +30,19 @@ const EditBlog = () => {
     const handleSubmit = async (event) => {
         event.preventDefault();
 
+        if (!user) {
+            setError("You must be logged in!");
+            return;
+        }
+
         const newBlog = { title: formData.title, text: formData.text, author: formData.author };
 
         const response = await fetch(`http://localhost:3000/api/blogs/${id}`, {
             method: 'PATCH',
             body: JSON.stringify(newBlog),
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                "Authorization": `Bearer ${user?.token}`
             },
         })
 

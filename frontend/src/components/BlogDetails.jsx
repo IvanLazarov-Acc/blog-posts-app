@@ -2,13 +2,25 @@
 
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useAuthContext } from "../hooks/useAuthContext";
 
 const BlogDetails = ({ blog, refetch }) => {
+
     const [error, setError] = useState(null);
+    const { user } = useAuthContext();
+
     const handleClick = async () => {
+
+        if (!user) {
+            setError("You must be logged in!");
+            return;
+        }
 
         const response = await fetch(`http://localhost:3000/api/blogs/${blog._id}`, {
             method: 'DELETE',
+            headers: {
+                "Authorization": `Bearer ${user?.token}`
+            }
         });
 
         const json = await response.json();
